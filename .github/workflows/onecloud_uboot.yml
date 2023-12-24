@@ -1,4 +1,4 @@
-name: Build
+name: 构建玩客云uboot[rmoyulong修改]
 
 on:
   #自动编译：每天早上4点
@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: 检查项目
         uses: actions/checkout@v2
 
       - name: Install dependencies
@@ -22,12 +22,12 @@ jobs:
           sudo apt update
           sudo apt install make imagemagick
 
-      - name: Download toolchain
+      - name: 下载依赖
         run: |
           curl -L -O https://redirect.armbian.com/_toolchain/gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz
           tar xvf ./gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz
 
-      - name: Build
+      - name: 编译
         run: |
           export PATH="$PATH:$(pwd)/gcc-linaro-arm-none-eabi-4.8-2014.04_linux/bin"
 
@@ -35,13 +35,13 @@ jobs:
           make m8b_onecloud_config
           make -j$(nproc)
 
-      - name: Download AmlImg
+      - name: 下载 AmlImg
         run: |
           ver="v0.3.0"
           curl -L -o ./AmlImg https://github.com/hzyitc/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
           chmod +x ./AmlImg
 
-      - name: Generate resource
+      - name: 生成资源
         run: |
           mkdir -p resource
 
@@ -56,7 +56,10 @@ jobs:
           EOF
           ./AmlImg res_pack build/resource.img resource/
 
-      - name: Generate eMMC burn image
+      - name: 生成 eMMC 直刷底包
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWRT_DATE: $(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
         run: |
           mkdir -p pack
 
@@ -110,21 +113,28 @@ jobs:
           EOF
 
           ./AmlImg pack build/eMMC.burn.img pack/
+          
+          #信息
+          export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
+          echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV
+          
+      - name: 整理固件
+        run: |
+        mkdir -p outfile
+        sudo cp build/*.bin ./outfile
+        sudo cp build/resource.img ./outfile
+        sudo cp build/eMMC.burn.img ./outfile
 
       - name: 上传固件
         uses: rmoyulong/action-gh-release@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: OpenWrt_${{ env.OWRT_TARGET }}_${{ env.OWRT_DATE }}
-          files: build/*
+          tag_name: Onecloud_Uboot_${{ env.OWRT_DATE }}
+          files: outfile/*
           body: |
             自用${{env.OWRT_TYPE}}固件-基础底包！首次使用建议全新刷写！
             =============基本信息============
 
-            源码：${{env.OWRT_SOURCE}}
-            平台：${{env.OWRT_TARGET}}
-            设备：${{env.OWRT_TYPE}}
-            密码：${{env.OWRT_PW}}
-            地址：${{env.OWRT_IP}}
-            内核：${{env.OWRT_LINUX}}
+            源码：https://github.com/hzyitc/u-boot-onecloud
+            平台：liunx/armv7
