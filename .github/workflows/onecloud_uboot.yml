@@ -111,23 +111,20 @@ jobs:
 
           ./AmlImg pack build/eMMC.burn.img pack/
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          path: |
-            build/*.bin
-            build/resource.img
-            build/eMMC.burn.img
-
-      - name: Release
-        run: |
-          time="${{ github.event.head_commit.timestamp }}"
-          sha="${GITHUB_SHA:0:8}"
-          tag="build-$(date +'%Y%m%d-%H%M' -d "$time")"
-          message="Auto-Build $(date +'%Y-%m-%d %H:%M' -d "$time")"
-          hub release create  -t "$GITHUB_SHA" "$tag" -m "$message" \
-            $(for a in build/*.bin; do echo -a $a; done) \
-            -a build/resource.img \
-            -a build/eMMC.burn.img
+      - name: 上传固件
+        uses: rmoyulong/action-gh-release@master
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: OpenWrt_${{ env.OWRT_TARGET }}_${{ env.OWRT_DATE }}
+          files: build/*
+          body: |
+            自用${{env.OWRT_TYPE}}固件-基础底包！首次使用建议全新刷写！
+            =============基本信息============
+
+            源码：${{env.OWRT_SOURCE}}
+            平台：${{env.OWRT_TARGET}}
+            设备：${{env.OWRT_TYPE}}
+            密码：${{env.OWRT_PW}}
+            地址：${{env.OWRT_IP}}
+            内核：${{env.OWRT_LINUX}}
