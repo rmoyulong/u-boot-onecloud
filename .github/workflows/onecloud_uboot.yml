@@ -125,7 +125,7 @@ jobs:
         sudo cp build/resource.img ./outfile
         sudo cp build/eMMC.burn.img ./outfile
 
-      - name: 上传固件
+      - name: 上传EMMC直刷底包
         uses: rmoyulong/action-gh-release@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -133,7 +133,7 @@ jobs:
           tag_name: Onecloud_Uboot_${{ env.OWRT_DATE }}
           files: outfile/*
           body: |
-            自用${{env.OWRT_TYPE}}固件-基础底包！首次使用建议全新刷写！
+            自用玩客云直刷底包eMMC.burn.img！刷写底包将抹去所有信息！
             =============基本信息============
 
             源码：https://github.com/hzyitc/u-boot-onecloud
