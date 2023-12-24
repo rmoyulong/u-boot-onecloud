@@ -120,10 +120,10 @@ jobs:
           
       - name: 整理固件
         run: |
-        mkdir -p outfile
-        sudo cp build/*.bin ./outfile
-        sudo cp build/resource.img ./outfile
-        sudo cp build/eMMC.burn.img ./outfile
+          mkdir -p outfile
+          sudo cp build/*.bin ./outfile
+          sudo cp build/resource.img ./outfile
+          sudo cp build/eMMC.burn.img ./outfile
 
       - name: 上传EMMC直刷底包
         uses: rmoyulong/action-gh-release@master
