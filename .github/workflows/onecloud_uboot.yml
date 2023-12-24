@@ -37,8 +37,8 @@ jobs:
 
       - name: 下载 AmlImg
         run: |
-          ver="v0.3.0"
-          curl -L -o ./AmlImg https://github.com/hzyitc/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
+          ver="v0.3.2"
+          curl -L -o ./AmlImg https://github.com/rmoyulong/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
           chmod +x ./AmlImg
 
       - name: 生成资源
